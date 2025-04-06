@@ -1,26 +1,30 @@
 import os
 import torch
+import pandas as pd
+from PIL import Image
+from tqdm import tqdm
 from transformers import (
     AutoTokenizer,
     AutoModelForSequenceClassification,
     T5ForConditionalGeneration,
     T5Tokenizer,
-    BlipProcessor,
-    BlipForConditionalGeneration,
+    Blip2Processor,
+    Blip2ForConditionalGeneration
 )
-from PIL import Image
-import pandas as pd
-from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 # ------------------- Setup -------------------
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Load BLIP for image description and VQA
-blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-vqa-base")
-blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-vqa-base").to(device)
+# Load BLIP-2 model and processor
+blip2_processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
+blip2_model = Blip2ForConditionalGeneration.from_pretrained(
+    "Salesforce/blip2-opt-2.7b",
+    torch_dtype=torch.float16
+).to(device)
 
-# Load T5 for NLI
-T5_MODEL = "ynie/t5-small-nli"
+# Load T5 model (replaced with a SQuAD fine-tuned version)
+T5_MODEL = "mrm8488/t5-base-finetuned-squadv2"
 t5_tokenizer = T5Tokenizer.from_pretrained(T5_MODEL)
 t5_model = T5ForConditionalGeneration.from_pretrained(T5_MODEL).to(device)
 
@@ -31,14 +35,12 @@ roberta_model = AutoModelForSequenceClassification.from_pretrained(ROBERTA_MODEL
 
 # ------------------- Functions -------------------
 
-def describe_image_with_blip(image_path, question=None):
-    image = Image.open(image_path).convert('RGB')
-    if question:
-        inputs = blip_processor(image, question, return_tensors="pt").to(device)
-    else:
-        inputs = blip_processor(image, return_tensors="pt").to(device)
-    output = blip_model.generate(**inputs)
-    return blip_processor.decode(output[0], skip_special_tokens=True)
+def ask_blip_question(image_path, question):
+    image = Image.open(image_path).convert("RGB")
+    prompt = f"Question: {question} Answer:"
+    inputs = blip2_processor(images=image, text=prompt, return_tensors="pt").to(device, torch.float16)
+    ids = blip2_model.generate(**inputs)
+    return blip2_processor.tokenizer.batch_decode(ids, skip_special_tokens=True)[0]
 
 def classify_nli_t5(premise, hypothesis):
     input_text = f"premise: {premise} hypothesis: {hypothesis}"
@@ -53,7 +55,17 @@ def classify_nli_roberta(premise, hypothesis):
     labels = ['entailment', 'neutral', 'contradiction']
     return labels[prediction]
 
-# ------------------- Rule and Question Setup -------------------
+def display_image_with_answers(image_path, qa_pairs):
+    image = Image.open(image_path)
+    plt.figure(figsize=(8, 6))
+    plt.imshow(image)
+    plt.axis("off")
+    text = "\n".join([f"{q} → {a}" for q, a in qa_pairs])
+    plt.figtext(0.5, 0.01, text, wrap=True, horizontalalignment='center', fontsize=10)
+    plt.tight_layout()
+    plt.show()
+
+# ------------------- Rule & Question Setup -------------------
 
 rules = [
     "Objects must not be floating.",
@@ -61,32 +73,24 @@ rules = [
     "All cubes must be red."
 ]
 
-# Convert each rule into a question for BLIP
 questions = [
     "Are there any objects floating?",
     "How many large spheres are in the image?",
     "What color are the cubes?"
 ]
 
-# ------------------- Core Evaluation Loop -------------------
+# ------------------- Main Execution -------------------
 
 image_dir = "CLEVR_v1.0/images/val/"
-image_files = sorted([os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(".png")])[:10]
+image_files = sorted([os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(".png")])[:1]
 
 results = []
 
 for image_path in tqdm(image_files, desc="Processing Images"):
     try:
-        # Gather multiple answers to rule-specific questions to form a better premise
-        answers = []
-        for q in questions:
-            answer = describe_image_with_blip(image_path, question=q)
-            answers.append(f"{q} {answer}")
-        
-        # Combine all question-answer pairs into one premise
-        premise = " ".join(answers)
+        qa_pairs = [(q, ask_blip_question(image_path, q)) for q in questions]
+        premise = " ".join([f"{q} {a}" for q, a in qa_pairs])
 
-        # Evaluate against each rule (used directly as hypothesis here)
         for rule in rules:
             t5_result = classify_nli_t5(premise, rule)
             roberta_result = classify_nli_roberta(premise, rule)
@@ -98,10 +102,12 @@ for image_path in tqdm(image_files, desc="Processing Images"):
                 "t5_result": t5_result,
                 "roberta_result": roberta_result
             })
+
+        display_image_with_answers(image_path, qa_pairs)
+
     except Exception as e:
         print(f"Error processing {image_path}: {e}")
 
-# Convert to DataFrame for review
-df = pd.DataFrame(results)
-import ace_tools as tools; tools.display_dataframe_to_user(name="CLEVR Inference Results", dataframe=df)
+# ------------------- Save or Display Results -------------------
 
+df = pd.DataFrame(results)
