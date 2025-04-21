@@ -6,6 +6,7 @@ This project evaluates **logical consistency in images** by:
 - Reporting whether the image contradicts any of the domain-specific rules.
 
 ---
+![scene_00003_angle_0_scene_summary](https://github.com/user-attachments/assets/76c03588-46d7-4ed2-88b2-e0ba7b8e2d9e)
 
 ## 🔍 Use Case
 
@@ -16,6 +17,7 @@ Imagine an AI assistant reviewing scenes to catch visual inconsistencies based o
 This pipeline can verify such rules automatically.
 
 ---
+
 
 ## 🧠 Models Used
 
