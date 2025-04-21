@@ -1,0 +1,29 @@
+import os
+import json
+
+# === CONFIG ===
+ann_path = "C:/VLNLP/Test/D7K/COCO/annotations/instances_train.json"
+
+# === LOAD JSON ===
+with open(ann_path, 'r') as f:
+    coco = json.load(f)
+
+invalid_boxes = []
+
+# === CHECK ALL BBOXES ===
+for ann in coco['annotations']:
+    x, y, w, h = ann['bbox']
+    if w <= 0 or h <= 0:
+        invalid_boxes.append({
+            'image_id': ann['image_id'],
+            'bbox': ann['bbox'],
+            'annotation_id': ann['id']
+        })
+
+# === REPORT ===
+if invalid_boxes:
+    print(f"Found {len(invalid_boxes)} invalid bounding boxes:\n")
+    for item in invalid_boxes:
+        print(f" - Annotation ID {item['annotation_id']} in image {item['image_id']} has invalid box: {item['bbox']}")
+else:
+    print("✅ All bounding boxes have positive width and height.")
