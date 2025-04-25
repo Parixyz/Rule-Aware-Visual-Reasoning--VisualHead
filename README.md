@@ -18,22 +18,6 @@ This pipeline can verify such rules automatically.
 
 ---
 
-
-## 🧠 Models Used
-
-| Component           | Model Name                                                 |
-|---------------------|------------------------------------------------------------|
-| **VQA / Description** | `Salesforce/blip-vqa-base`                                |
-| **NLI (Approach 1)** | `ynie/t5-small-nli`                                       |
-| **NLI (Approach 2)** | `ynie/roberta-large-snli_mnli_fever_anli_R1_R2_R3-nli`    |
-
----
-
-## 📂 Directory Structure
-
-
----
-
 ## 🛠️ Setup
 
 ### 1. Clone this repo and install dependencies:
