@@ -18,11 +18,4 @@ This pipeline can verify such rules automatically.
 
 ---
 
-## 🛠️ Setup
 
-### 1. Clone this repo and install dependencies:
-
-```bash
-git clone https://github.com/yourusername/clevr-nli-checker.git
-cd clevr-nli-checker
-pip install -r requirements.txt
