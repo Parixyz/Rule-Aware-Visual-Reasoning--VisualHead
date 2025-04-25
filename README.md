@@ -1,4 +1,4 @@
-# 🚦 Visual-NLI Contradiction Detection on CLEVR
+# 🚦 Visual-Models Trained on 3dNLI
 
 This project evaluates **logical consistency in images** by:
 - Describing image content using **BLIP** (for VQA),
