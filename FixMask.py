@@ -32,7 +32,7 @@ for fname in os.listdir(mask_dir):
         actual_img = cv2.imread(actual_path, cv2.IMREAD_GRAYSCALE)
 
         if actual_img is None:
-            print(f"❌ Actual image not found for: {fname}")
+            print(f" Actual image not found for: {fname}")
             continue
 
         # Check mask for faults
@@ -40,9 +40,9 @@ for fname in os.listdir(mask_dir):
         white_ratio = np.mean(mask_img == 255)
 
         if not set(unique_vals).issubset({0, 255}) or white_ratio > threshold_ratio:
-            print(f"⚠️ Fixing: {fname} | White ratio: {white_ratio:.2f} | Unique: {unique_vals}")
+            print(f" Fixing: {fname} | White ratio: {white_ratio:.2f} | Unique: {unique_vals}")
             fixed_mask = fix_mask_from_actual(actual_img)
             cv2.imwrite(mask_path, fixed_mask)  # Overwrite the original binary mask
             fixed_count += 1
 
-print(f"✅ Replaced {fixed_count} faulty binary masks in-place.")
+print(f" Replaced {fixed_count} faulty binary masks in-place.")
