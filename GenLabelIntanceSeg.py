@@ -53,7 +53,7 @@ grouped = df.groupby("scene_id")
 annotation_id = 1
 image_id = 1
 
-print("📦 Generating COCO-style instance annotations and organizing files...")
+print(" Generating COCO-style instance annotations and organizing files...")
 
 for scene_id, group in tqdm(grouped):
     scene_image_name = f"{scene_id}_angle_0.png"
@@ -98,7 +98,7 @@ for scene_id, group in tqdm(grouped):
 
             x, y, w, h = cv2.boundingRect(contour)
             if w <= 0 or h <= 0:
-                print(f"❌ Invalid box in {mask_name}: {[x, y, w, h]}")
+                print(f" Invalid box in {mask_name}: {[x, y, w, h]}")
                 continue
 
             segmentation = contour.flatten().tolist()
@@ -123,4 +123,4 @@ for scene_id, group in tqdm(grouped):
 with open(output_json_path, 'w') as f:
     json.dump(coco_output, f)
 
-print("✅ COCO-style dataset generated and organized in folders!")
+print(" COCO-style dataset generated and organized in folders!")
