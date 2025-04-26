@@ -92,7 +92,7 @@ best_loss = float('inf')
 early_stopping_counter = 0
 losses_per_epoch = []
 
-print("🚀 Training started...")
+print(" Training started...")
 for epoch in range(EPOCHS):
     model.train()
     total_loss = 0
