@@ -13,7 +13,7 @@ import json
 import matplotlib.pyplot as plt
 import cv2
 
-# === CONFIG ===
+
 data_root = "C:/VLNLP/Test/D7K/COCO"
 image_dir = os.path.join(data_root, "images")
 ann_path = os.path.join(data_root, "annotations/instances_train.json")
@@ -31,7 +31,7 @@ def get_transform():
         T.ToTensor()
     ])
 
-# === DATASET ===
+
 class CocoInstanceDataset(Dataset):
     def __init__(self, image_dir, ann_path, transforms=None):
         with open(ann_path, 'r') as f:
@@ -83,7 +83,7 @@ model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCN
 model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(256, 256, NUM_CLASSES)
 model = model.to(device)
 
-# === TRAINING ===
+
 dataset = CocoInstanceDataset(image_dir, ann_path, transforms=get_transform())
 loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=lambda x: tuple(zip(*x)))
 
@@ -124,7 +124,7 @@ for epoch in range(EPOCHS):
             print(" Early stopping triggered.")
             break
 
-    # === Show example after each epoch ===
+    # Just to show 
     model.eval()
     with torch.no_grad():
         img, target = dataset[0]
@@ -141,7 +141,7 @@ for epoch in range(EPOCHS):
         plt.axis('off')
         plt.show()
 
-# === LOSS CURVE ===
+
 plt.figure(figsize=(8, 4))
 plt.plot(losses_per_epoch, marker='o', label="Train Loss")
 plt.title("Training Loss per Epoch")
