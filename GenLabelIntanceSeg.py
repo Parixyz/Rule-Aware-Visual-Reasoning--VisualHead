@@ -1,8 +1,4 @@
-# === Instance Segmentation Starter ===
-# - Prepares per-instance masks from CSV and binary masks
-# - Each object is treated as an individual mask
-# - Converts to COCO-style JSON for Mask R-CNN
-# - Organizes images and masks into separate folders with validation checks
+
 
 import os
 import cv2
@@ -13,7 +9,8 @@ from PIL import Image
 from tqdm import tqdm
 import shutil
 
-# === CONFIG ===
+#Convert To coco....
+
 csv_path = "C:/VLNLP/Test/D7K/scene_objects_balanced_7k.csv"
 mask_dir = "C:/VLNLP/Test/D7K/binary_masks_kmeans"
 image_dir = "C:/VLNLP/Test/D7K"
@@ -34,7 +31,7 @@ shape_to_class = {
     "cube": 5  # 0 is background
 }
 
-# === COCO STRUCTURE ===
+
 coco_output = {
     "images": [],
     "annotations": [],
@@ -53,7 +50,7 @@ grouped = df.groupby("scene_id")
 annotation_id = 1
 image_id = 1
 
-print(" Generating COCO-style instance annotations and organizing files...")
+
 
 for scene_id, group in tqdm(grouped):
     scene_image_name = f"{scene_id}_angle_0.png"
@@ -119,8 +116,8 @@ for scene_id, group in tqdm(grouped):
 
     image_id += 1
 
-# === SAVE TO DISK ===
+
 with open(output_json_path, 'w') as f:
     json.dump(coco_output, f)
 
-print(" COCO-style dataset generated and organized in folders!")
+
