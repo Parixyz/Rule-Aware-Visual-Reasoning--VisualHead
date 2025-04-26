@@ -4,16 +4,16 @@ import numpy as np
 from PIL import Image
 from sklearn.cluster import KMeans
 
-# === Configuration ===
+
 image_dir = "C://VLNLP//Test//D7K"
 save_dir = os.path.join(image_dir, "binary_masks_kmeans")
 #os.makedirs(save_dir, exist_ok=True)
 start_file = "scene_16981_mask_0_angle_0.png"
 
-# List all relevant files
+
 image_files = [f for f in os.listdir(image_dir) if f.endswith(".png") and "_mask_" in f]
 
-# Sort the filenames (important for ordering)
+# (important for ordering)
 image_files_sorted = sorted(image_files)
 start_index = image_files_sorted.index(start_file)
 image_files = image_files[start_index:]
