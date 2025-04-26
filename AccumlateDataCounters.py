@@ -17,6 +17,6 @@ df['_rule3'] = df['violations'].str.contains('rule3', na=False).astype(int)
 df['rule_code'] = df['_rule1'] * 1 + df['_rule2'] * 2 + df['_rule3'] * 4
 
 # === Print rule_code counts ===
-print("📊 Rule Code Distribution:")
+print(" Rule Code Distribution:")
 print(df['rule_code'].value_counts().sort_index())
 print(sum(df['rule_code'].value_counts()))
